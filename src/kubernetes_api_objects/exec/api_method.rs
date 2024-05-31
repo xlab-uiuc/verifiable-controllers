@@ -44,7 +44,7 @@ pub struct KubeGetRequest {
 impl KubeGetRequest {
     #[verifier(external)]
     pub fn key(&self) -> std::string::String {
-        format!("{}/{}/{}", self.api_resource.as_kube_ref().kind, self.namespace.as_rust_string_ref(), self.name.as_rust_string_ref())
+        format!("{}/{}/{}", self.api_resource.as_kube_ref().kind, self.namespace, self.name)
     }
 }
 
@@ -71,7 +71,7 @@ pub struct KubeListRequest {
 impl KubeListRequest {
     #[verifier(external)]
     pub fn key(&self) -> std::string::String {
-        format!("{}/{}", self.api_resource.as_kube_ref().kind, self.namespace.as_rust_string_ref())
+        format!("{}/{}", self.api_resource.as_kube_ref().kind, self.namespace)
     }
 }
 
@@ -96,7 +96,7 @@ pub struct KubeCreateRequest {
 impl KubeCreateRequest {
     #[verifier(external)]
     pub fn key(&self) -> std::string::String {
-        format!("{}/{}/{}", self.api_resource.as_kube_ref().kind, self.namespace.as_rust_string_ref(), self.obj.kube_metadata_ref().name.as_ref().unwrap_or(&"".to_string()))
+        format!("{}/{}/{}", self.api_resource.as_kube_ref().kind, self.namespace, self.obj.kube_metadata_ref().name.as_ref().unwrap_or(&"".to_string()))
     }
 }
 
@@ -121,7 +121,7 @@ pub struct KubeDeleteRequest {
 impl KubeDeleteRequest {
     #[verifier(external)]
     pub fn key(&self) -> std::string::String {
-        format!("{}/{}/{}", self.api_resource.as_kube_ref().kind, self.namespace.as_rust_string_ref(), self.name.as_rust_string_ref())
+        format!("{}/{}/{}", self.api_resource.as_kube_ref().kind, self.namespace, self.name)
     }
 }
 
@@ -150,7 +150,7 @@ pub struct KubeUpdateRequest {
 impl KubeUpdateRequest {
     #[verifier(external)]
     pub fn key(&self) -> std::string::String {
-        format!("{}/{}/{}", self.api_resource.as_kube_ref().kind, self.namespace.as_rust_string_ref(), self.name.as_rust_string_ref())
+        format!("{}/{}/{}", self.api_resource.as_kube_ref().kind, self.namespace, self.name)
     }
 }
 
@@ -177,7 +177,7 @@ pub struct KubeUpdateStatusRequest {
 impl KubeUpdateStatusRequest {
     #[verifier(external)]
     pub fn key(&self) -> std::string::String {
-        format!("{}/{}/{}", self.api_resource.as_kube_ref().kind, self.namespace.as_rust_string_ref(), self.name.as_rust_string_ref())
+        format!("{}/{}/{}", self.api_resource.as_kube_ref().kind, self.namespace, self.name)
     }
 }
 
@@ -369,6 +369,36 @@ impl KubeAPIResponse {
         }
     }
 
+    pub fn is_list_response(&self) -> (res: bool)
+        ensures
+            res == self.is_ListResponse(),
+    {
+        match self {
+            KubeAPIResponse::ListResponse(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_list_response_ref(&self) -> (resp: &KubeListResponse)
+        requires self.is_ListResponse(),
+        ensures resp == self.get_ListResponse_0(),
+    {
+        match self {
+            KubeAPIResponse::ListResponse(resp) => resp,
+            _ => unreached(),
+        }
+    }
+
+    pub fn into_list_response(self) -> (resp: KubeListResponse)
+        requires self.is_ListResponse(),
+        ensures resp == self.get_ListResponse_0(),
+    {
+        match self {
+            KubeAPIResponse::ListResponse(resp) => resp,
+            _ => unreached(),
+        }
+    }
+
     pub fn is_create_response(&self) -> (res: bool)
         ensures
             res == self.is_CreateResponse(),
@@ -454,6 +484,36 @@ impl KubeAPIResponse {
     {
         match self {
             KubeAPIResponse::UpdateStatusResponse(resp) => resp,
+            _ => unreached(),
+        }
+    }
+
+    pub fn is_delete_response(&self) -> (res: bool)
+        ensures
+            res == self.is_DeleteResponse(),
+    {
+        match self {
+            KubeAPIResponse::DeleteResponse(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_delete_response_ref(&self) -> (resp: &KubeDeleteResponse)
+        requires self.is_DeleteResponse(),
+        ensures resp == self.get_DeleteResponse_0(),
+    {
+        match self {
+            KubeAPIResponse::DeleteResponse(resp) => resp,
+            _ => unreached(),
+        }
+    }
+
+    pub fn into_delete_response(self) -> (resp: KubeDeleteResponse)
+        requires self.is_DeleteResponse(),
+        ensures resp == self.get_DeleteResponse_0(),
+    {
+        match self {
+            KubeAPIResponse::DeleteResponse(resp) => resp,
             _ => unreached(),
         }
     }
